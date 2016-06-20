@@ -3,12 +3,12 @@
   "version": "0.0.1",
   "description": "you can have My Event Hash when you Pry It From my cold dead fingers",
   "main": "index.js",
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "jquery": "^3.0.0",
     "observ": "^0.2.0",
     "observ-struct": "^6.0.0",
+    "observ-varhash": "^1.0.8",
     "ts-loader": "^0.8.2",
     "typescript": "^1.8.10",
     "virtual-dom": "^2.1.1",
