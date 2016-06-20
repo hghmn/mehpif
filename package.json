@@ -2,7 +2,7 @@
   "name": "mehpif",
   "version": "0.0.1",
   "description": "you can have My Event Hash when you Pry It From my cold dead fingers",
-  "main": "index.js",
+  "main": "./dist/lib/index.js",
   "dependencies": {},
   "devDependencies": {
     "jquery": "^3.0.0",
@@ -19,5 +19,9 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Cameron Jordan",
-  "license": "MIT"
+  "license": "MIT",
+  "scripts": {
+      "dist": "rm -rf dist && tsc --outDir dist && rm -rf dist/example/ && sed -e  '/^\\/\\/\\/ <reference path/d' -i ''  dist/lib/*.d.ts"
+  },
+  "typings": "./dist/lib/index.d.ts"
 }

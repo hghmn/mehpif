@@ -57,7 +57,7 @@ class From extends ThunkView<IState> {
                     h('li', [
                         h('.view', [
                             h('input.toggle', { type: 'checkbox' }),
-                            h('label', 'Buy a unicorn'),
+                            h('label', 'Buy a dragon'),
                             h('button.destroy')
                         ]),
                         h('input.edit', { value: 'Rule the web' })

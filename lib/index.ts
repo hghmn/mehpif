@@ -1,7 +1,2 @@
-import set = require('./set');
-import { ThunkView, thunk } from './thunk';
-export = {
-    set,
-    ThunkView,
-    thunk,
-};
+export { set, ISetOptions } from './set';
+export { ThunkView, thunk } from './thunk';

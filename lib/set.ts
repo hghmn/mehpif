@@ -2,7 +2,7 @@
 
 import $ = require('jquery');
 
-interface ISetOptions<T> {
+export interface ISetOptions<T> {
     /// get value from dom node
     val: (node: any) => any;
     /// parse value into suitable form
@@ -13,7 +13,7 @@ interface ISetOptions<T> {
     compare: boolean;
 }
 
-function set<T>(state: { set: (value: T) => void, (): T }, options?: ISetOptions<T>) {
+export function set<T>(state: { set: (value: T) => void, (): T }, options?: ISetOptions<T>) {
     const val = options && options.val;
     const parse = options && options.parse;
     const prevent = options && options.prevent;
@@ -30,5 +30,3 @@ function set<T>(state: { set: (value: T) => void, (): T }, options?: ISetOptions
         }
     };
 }
-
-export = set;

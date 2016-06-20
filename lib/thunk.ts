@@ -4,8 +4,10 @@ import diff = require('virtual-dom/diff')
 import createElement = require('virtual-dom/create-element')
 import patch = require('virtual-dom/patch')
 import { IObservStruct } from './interfaces';
-import { VTree } from 'virtual-dom';
 import $ = require('jquery');
+
+// punt :(
+export type VTree = any;
 
 function addListeners(node: any, events: IEvent[]) {
     var $el = $(node);

@@ -5,7 +5,7 @@ export interface IObserv<T> {
 export type IObservStruct<T> = IObserv<T> & T;
 
 
-interface IVarhash<T> {
+export interface IVarhash<T> {
     [key: string]: T;
 }
 
