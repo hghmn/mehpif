@@ -39,14 +39,17 @@ function prepareEvents(eventSet, context) {
     });
 }
 function view(state, dom, events) {
-    return new SimpleView(state, { dom: dom, events: events });
+    return new SimpleView(state, events, dom);
 }
 exports.view = view;
 var View = (function () {
-    function View(state) {
+    function View(state, eventsOverride) {
         this.state = state;
-        var events = prepareEvents(this.events(), this);
+        var events = prepareEvents(eventsOverride || this.events(), this);
         this.eventSet = events && events.length ? events : null;
+        this.needsHook = !!(this.eventSet ||
+            this.onHook !== View.prototype.onHook ||
+            this.onUnhook !== View.prototype.onUnhook);
     }
     View.prototype.events = function () {
         return null;
@@ -56,14 +59,14 @@ var View = (function () {
     View.prototype.host = function () {
         var _this = this;
         var animationFrameToken = 0;
-        var tree = this.render(null);
-        var el = createElement(tree, null);
+        var el = createElement(this.render(), null);
         var render = function () {
             animationFrameToken = 0;
-            var newTree = _this.render({ vnode: tree });
-            var patches = diff(tree, newTree);
+            var previousTree = _this.previousTree;
+            var newTree = _this.render();
+            var patches = diff(previousTree, newTree);
             patch(el, patches);
-            tree = newTree;
+            _this.onAfterPatch();
         };
         var queueRender = function () {
             if (animationFrameToken) {
@@ -74,32 +77,45 @@ var View = (function () {
         this.dispose = this.state(queueRender);
         return el;
     };
-    View.prototype.tree = function () {
-        return this.render(this.previousTree);
+    View.prototype.onAfterPatch = function () {
     };
-    View.prototype.render = function (previous) {
+    View.prototype.onHook = function (node) {
+    };
+    View.prototype.onUnhook = function (node) {
+    };
+    View.prototype.render = function () {
         var currentState = this.state();
-        if (previous && previous.vnode && this.previousState === currentState) {
+        var previous = this.previousTree;
+        if (previous && this.previousState === currentState) {
             //console.log('previous value is still good');
-            return previous.vnode;
+            return previous;
         }
         var result = this.dom(currentState);
-        if (this.eventSet) {
-            result.properties['thunk-view-hook'] = this;
+        if (this.needsHook) {
+            var hooks = result.hooks;
+            if (!hooks) {
+                result.hooks = hooks = {};
+            }
+            // monkey patch ourself into VNode hooks
+            // virtual-dom expects hooks to already be present in properties passed to h/VNode#constructor
+            hooks.mehpif = this;
+            result.properties.mehpif = this;
         }
         // please don't make this necessary
         // ASSUMPTION: any (bad, very bad) changes to `state` during render are reflected in returned VTree
         this.previousState = this.state();
-        this.previousTree = { vnode: result };
+        this.previousTree = result;
         return result;
     };
     View.prototype.hook = function (node, propertyName, previousValue) {
         addListeners(node, this.eventSet);
-        console.log(this, 'hook', node, propertyName, previousValue);
+        this.onHook(node);
+        //console.log(this, 'hook', node, propertyName, previousValue);
     };
     View.prototype.unhook = function (node, propertyName, previousValue) {
         // FIXME off stuff
-        console.log(this, 'unhook', node, propertyName, previousValue);
+        this.onUnhook(node);
+        //console.log(this, 'unhook', node, propertyName, previousValue);
     };
     View.prototype.dispose = function () {
         // FIXME more, better life-cycle
@@ -109,15 +125,12 @@ var View = (function () {
 exports.View = View;
 var SimpleView = (function (_super) {
     __extends(SimpleView, _super);
-    function SimpleView(state, options) {
-        _super.call(this, state);
-        this.options = options;
+    function SimpleView(state, eventsOverride, dom) {
+        _super.call(this, state, eventsOverride);
+        this.dom = dom;
     }
     SimpleView.prototype.dom = function (state) {
-        return this.options.dom(state);
-    };
-    SimpleView.prototype.events = function () {
-        return this.options.events;
+        return null;
     };
     return SimpleView;
 }(View));

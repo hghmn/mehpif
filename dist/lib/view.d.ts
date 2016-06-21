@@ -9,12 +9,15 @@ export declare abstract class View<T> {
     private previousState;
     private previousTree;
     private eventSet;
-    constructor(state: IObservStruct<T>);
+    private needsHook;
+    constructor(state: IObservStruct<T>, eventsOverride?: EventSet);
     abstract dom(state: T): VTree;
     events(): EventSet;
     host(): Text;
-    tree(): VTree;
-    private render(previous);
+    protected onAfterPatch(): void;
+    protected onHook(node: any): void;
+    protected onUnhook(node: any): void;
+    render(): VTree;
     private hook(node, propertyName, previousValue);
     private unhook(node, propertyName, previousValue);
     dispose(): void;
