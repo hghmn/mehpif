@@ -17,7 +17,6 @@ declare module "virtual-dom" {
 const ENTER_KEY = 13;
 const ESCAPE_KEY = 27;
 
-// TODO always remove items with empty title
 interface ITodo {
     id?: string;
     title: string;
@@ -48,7 +47,13 @@ class Todo extends View<ITodo> {
         return {
             'click .toggle': set<ITodo>(this.state, { prepare: completed => this.copy({ completed }) }),
             'click .destroy': () => this.set({ title: null }), // false-y will cause delete
-			'dblclick label': () => this.set({ editing: true }), // FIXME focus
+			'dblclick label': evt => {
+                this.set({ editing: true });
+                const input = $(evt.target).closest('li').find('.edit');
+
+                // FIXME very dirty
+                setTimeout(() => input.focus(), 50);
+            },
 			'keypress .edit': 'updateOnEnter',
 			'keydown .edit': 'revertOnEscape',
 			'blur .edit': 'close',
@@ -75,7 +80,7 @@ class Todo extends View<ITodo> {
             ]),
             h('input.edit', {
                 value: state.title,
-                //autofocus: !!state.editing, // FIXME focus
+                //autofocus: state.editing // :( not reliable
             })
         ]);
     }
