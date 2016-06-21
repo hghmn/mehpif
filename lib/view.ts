@@ -51,7 +51,7 @@ function prepareEvents(eventSet: EventSet, context: any): IEvent[] {
 }
 
 export function view<T>(state: IObservStruct<T>, dom: (state: T) => VTree, events?: EventSet): View<T> {
-    return new SimpleView<T>(state, { dom, events });
+    return new SimpleView<T>(state, events, dom);
 }
 
 export type EventSet = {
@@ -63,8 +63,8 @@ export abstract class View<T> {
     private previousTree: { vnode: VTree };
     private eventSet: IEvent[];
 
-    constructor(public state: IObservStruct<T>) {
-        const events = prepareEvents(this.events(), this);
+    constructor(public state: IObservStruct<T>, eventsOverride?: EventSet) {
+        const events = prepareEvents(eventsOverride || this.events(), this);
         this.eventSet = events && events.length ? events : null;
     }
 
@@ -142,13 +142,11 @@ export abstract class View<T> {
 }
 
 class SimpleView<T> extends View<T> {
-    constructor (state: IObservStruct<T>, private options: { dom: (state: T) => VTree, events: EventSet }) {
-        super(state);
+    constructor (state: IObservStruct<T>, eventsOverride: EventSet, dom: (state: T) => VTree) {
+        super(state, eventsOverride);
+        this.dom = dom;
     }
     dom(state: T): VTree {
-        return this.options.dom(state);
-    }
-    events(): EventSet {
-        return this.options.events;
+        return null;
     }
 }
