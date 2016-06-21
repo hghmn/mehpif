@@ -1,6 +1,7 @@
 export interface IObserv<T> {
     (): T;
     (watch: ((value: T) => void)): (() => void);
+    set(value: T): void;
 }
 export interface IObservStruct_<T> {
     (): T;
