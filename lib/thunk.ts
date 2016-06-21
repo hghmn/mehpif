@@ -55,13 +55,12 @@ export function thunk<T>(state: IObservStruct<T>, dom: (state: T) => VTree, even
 }
 
 export type EventSet = {
-    [evt: string]: Function;
+    [evt: string]: Function | string;
 };
 
 export abstract class ThunkView<T> {
     private previousState: T;
     private previousTree: { vnode: VTree };
-    private type: string;
     private eventSet: IEvent[];
 
     constructor(public state: IObservStruct<T>) {
@@ -141,4 +140,3 @@ export abstract class ThunkView<T> {
         // FIXME more, better life-cycle
     }
 }
-(ThunkView as any).prototype.type = 'Thunk';

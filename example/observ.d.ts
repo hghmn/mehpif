@@ -16,13 +16,13 @@ declare module "observ-struct" {
     type remove = () => void;
     type watch<T> = (value: T & { _diff: any }) => void;
 
-    interface IObserv<T> {
+    interface IObservStruct<T> {
         (): T;
         (watch: watch<T>): remove;
         set(value: T): void;
     }
 
-    function ObservStruct<T>(value: T): IObserv<T> & T;
+    function ObservStruct<T>(value: T): IObservStruct<T> & T;
     export = ObservStruct;
 }
 
@@ -31,7 +31,7 @@ declare module "observ-varhash" {
         [key: string]: T;
     }
 
-    interface IObservVarhash<T, TBefore> {
+    interface IObservVarhash<TBefore, T> {
         (): IVarhash<T>;
         (watch: ((value: IVarhash<T>) => void)): (() => void);
         put(key: string, value: TBefore): this;
@@ -41,8 +41,12 @@ declare module "observ-varhash" {
 
     function ObservStruct<T>(hash: IVarhash<T>):
         IObservVarhash<T, T>;
-    function ObservStruct<TValue, TBefore>(hash: IVarhash<TBefore>, createValue: (value: TBefore, key: string) => TValue):
-        IObservVarhash<TValue, TBefore>;
+    function ObservStruct<TBefore, TValue>(hash: IVarhash<TBefore>, createValue: (value: TBefore, key: string) => TValue):
+        IObservVarhash<TBefore, TValue>;
 
     export = ObservStruct;
+}
+
+declare module "uuid" {
+    export function v4(): string;
 }
