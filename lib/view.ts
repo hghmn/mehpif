@@ -60,7 +60,7 @@ export type EventSet = {
 
 export abstract class View<T> {
     private previousState: T;
-    private previousTree: { vnode: VTree };
+    private previousTree: VTree;
     private eventSet: IEvent[];
     private needsHook: boolean;
 
@@ -82,15 +82,14 @@ export abstract class View<T> {
     /// returns the element
     host() {
         let animationFrameToken = 0;
-        let tree = this.render(null);
-        const el = createElement(tree as any, null);
+        const el = createElement(this.render(), null);
 
         const render = () => {
             animationFrameToken = 0;
-            const newTree = this.render({ vnode: tree });
-            const patches = diff(tree, newTree);
+            const previousTree = this.previousTree;
+            const newTree = this.render();
+            const patches = diff(previousTree, newTree);
             patch(el as any, patches);
-            tree = newTree;
             this.onAfterPatch();
         };
 
@@ -106,10 +105,6 @@ export abstract class View<T> {
         return el;
     }
 
-    tree(): VTree {
-        return this.render(this.previousTree);
-    }
-
     protected onAfterPatch(): void {
     }
 
@@ -119,11 +114,12 @@ export abstract class View<T> {
     protected onUnhook(node: any): void {
     }
 
-    private render(previous: { vnode: VTree }): VTree {
+    render(): VTree {
         const currentState = this.state();
-        if (previous && previous.vnode && this.previousState === currentState) {
+        const previous = this.previousTree;
+        if (previous && this.previousState === currentState) {
             //console.log('previous value is still good');
-            return previous.vnode;
+            return previous;
         }
 
         const result: any = this.dom(currentState);
@@ -146,7 +142,7 @@ export abstract class View<T> {
         // please don't make this necessary
         // ASSUMPTION: any (bad, very bad) changes to `state` during render are reflected in returned VTree
         this.previousState = this.state();
-        this.previousTree = { vnode: result };
+        this.previousTree = result;
 
         return result;
     }

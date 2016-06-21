@@ -157,10 +157,10 @@ class App extends View<IState> {
         const remaining = keys.length - completed;
         const any = keys.length || null;
         const currentFilter = state.filter as any as Filter; // :(
-        const match =
-            currentFilter === Filter.completed ? (child => child.state().completed ? child.tree() : null) :
-            currentFilter === Filter.active ? (child => !child.state().completed ? child.tree() : null) :
-            child => child.tree();
+        const match: (child: Todo) => any =
+            currentFilter === Filter.completed ? (child => child.state().completed ? child.render() : null) :
+            currentFilter === Filter.active ? (child => !child.state().completed ? child.render() : null) :
+            child => child.render();
         const filter = (val, href: string, title: string) =>
             h('li',
                 h(val === state.filter ? 'a.selected' : 'a', { href }, title));
