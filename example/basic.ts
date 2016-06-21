@@ -25,15 +25,15 @@ interface ITodo {
     editing?: boolean;
 }
 
+interface IState {
+    todos: IObservVarhash<ITodo, IObservStruct<ITodo>>;
+    filter: IObserv<Filter>,
+}
+
 enum Filter {
     all = 0,
     active,
     completed,
-}
-
-interface IState {
-    todos: IObservVarhash<ITodo, IObservStruct<ITodo>>;
-    filter: IObserv<Filter>,
 }
 
 function forEach<T>(hash: IVarhash<T>, selector: (value: T, key: string) => void): void {
@@ -201,7 +201,7 @@ class App extends View<IState> {
         const $input = $(e.target);
         const title = $input.val().trim();
         if (title) {
-            this.state.todos.put(uuid.v4(), { title, completed: false });
+            this.state.todos.put(uuid.v4(), { title });
             $input.val('');
         }
     }
@@ -247,6 +247,9 @@ declare const document: any;
         if (!todo.id) {
             todo.id = id || uuid.v4();
         }
+        todo.completed = !!todo.completed;
+        todo.editing = !!todo.editing;
+
         return ObservStruct(todo);
     };
 
