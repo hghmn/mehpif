@@ -1,2 +1,2 @@
 export { set, ISetOptions } from './set';
-export { ThunkView, thunk } from './thunk';
+export { View, view, EventSet } from './view';

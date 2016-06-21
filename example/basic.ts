@@ -1,6 +1,6 @@
 /// <reference path="./observ.d.ts" />
 
-import { thunk, ThunkView, set, EventSet } from '../lib';
+import { View, set, EventSet } from '../lib';
 import { VNode, h } from 'virtual-dom';
 import { IObservVarhash, IObservStruct, IVarhash, IObserv } from '../lib/interfaces';
 import Observ = require('observ');
@@ -43,7 +43,7 @@ function forEach<T>(hash: IVarhash<T>, selector: (value: T, key: string) => void
     }
 }
 
-class Todo extends ThunkView<ITodo> {
+class Todo extends View<ITodo> {
     events(): EventSet {
         return {
             'click .toggle': set<ITodo>(this.state, { prepare: completed => this.copy({ completed }) }),
@@ -110,7 +110,7 @@ class Todo extends ThunkView<ITodo> {
     }
 }
 
-class App extends ThunkView<IState> {
+class App extends View<IState> {
     children: IVarhash<Todo> = {};
 
     constructor(state: IObservStruct<IState>) {

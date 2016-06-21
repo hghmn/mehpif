@@ -1,8 +1,8 @@
 export interface ISetOptions<T> {
-    val: (node: any) => any;
-    parse: (value: any) => T;
-    prevent: (value: T) => boolean;
-    compare: boolean;
+    val?: (node: any) => any;
+    prepare?: (value: any) => T;
+    prevent?: (value: T) => boolean;
+    compare?: boolean;
 }
 export declare function set<T>(state: {
     set: (value: T) => void;

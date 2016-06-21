@@ -3,13 +3,13 @@
 var $ = require('jquery');
 function set(state, options) {
     var val = options && options.val;
-    var parse = options && options.parse;
+    var prepare = options && options.prepare;
     var prevent = options && options.prevent;
     var compare = options && options.compare;
     return function (evt) {
         var node = evt.currentTarget || evt.target;
-        var value = val ? val(node) : $(node).val();
-        var parsed = parse ? parse(value) : value;
+        var value = val ? val(node) : typeof node.checked === 'boolean' ? node.checked : $(node).val();
+        var parsed = prepare ? prepare(value) : value;
         if (prevent && prevent(parsed)) {
             evt.preventDefault();
         }

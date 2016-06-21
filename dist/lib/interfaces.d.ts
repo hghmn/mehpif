@@ -1,12 +1,18 @@
 export interface IObserv<T> {
     (): T;
     (watch: ((value: T) => void)): (() => void);
+    set(value: T): void;
 }
-export declare type IObservStruct<T> = IObserv<T> & T;
+export interface IObservStruct_<T> {
+    (): T;
+    (watch: ((value: T) => void)): (() => void);
+    set(value: T): void;
+}
+export declare type IObservStruct<T> = IObservStruct_<T> & T;
 export interface IVarhash<T> {
     [key: string]: T;
 }
-export interface IObservVarhash<T, TBefore> {
+export interface IObservVarhash<TBefore, T> {
     (): IVarhash<T>;
     (watch: ((value: IVarhash<T>) => void)): (() => void);
     put(key: string, value: TBefore): this;

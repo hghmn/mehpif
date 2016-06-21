@@ -50,15 +50,15 @@ function prepareEvents(eventSet: EventSet, context: any): IEvent[] {
     });
 }
 
-export function thunk<T>(state: IObservStruct<T>, dom: (state: T) => VTree, events?: EventSet) {
-    throw new Error('unimplemented');
+export function view<T>(state: IObservStruct<T>, dom: (state: T) => VTree, events?: EventSet): View<T> {
+    return new SimpleView<T>(state, { dom, events });
 }
 
 export type EventSet = {
     [evt: string]: Function | string;
 };
 
-export abstract class ThunkView<T> {
+export abstract class View<T> {
     private previousState: T;
     private previousTree: { vnode: VTree };
     private eventSet: IEvent[];
@@ -138,5 +138,17 @@ export abstract class ThunkView<T> {
 
     public dispose() {
         // FIXME more, better life-cycle
+    }
+}
+
+class SimpleView<T> extends View<T> {
+    constructor (state: IObservStruct<T>, private options: { dom: (state: T) => VTree, events: EventSet }) {
+        super(state);
+    }
+    dom(state: T): VTree {
+        return this.options.dom(state);
+    }
+    events(): EventSet {
+        return this.options.events;
     }
 }

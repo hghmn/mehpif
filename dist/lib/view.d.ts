@@ -1,14 +1,13 @@
 import { IObservStruct } from './interfaces';
 export declare type VTree = any;
-export declare function thunk<T>(state: IObservStruct<T>, dom: (state: T) => VTree, events?: EventSet): void;
+export declare function view<T>(state: IObservStruct<T>, dom: (state: T) => VTree, events?: EventSet): View<T>;
 export declare type EventSet = {
-    [evt: string]: Function;
+    [evt: string]: Function | string;
 };
-export declare abstract class ThunkView<T> {
+export declare abstract class View<T> {
     state: IObservStruct<T>;
     private previousState;
     private previousTree;
-    private type;
     private eventSet;
     constructor(state: IObservStruct<T>);
     abstract dom(state: T): VTree;
