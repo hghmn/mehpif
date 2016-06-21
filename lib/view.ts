@@ -62,10 +62,15 @@ export abstract class View<T> {
     private previousState: T;
     private previousTree: { vnode: VTree };
     private eventSet: IEvent[];
+    private needsHook: boolean;
 
     constructor(public state: IObservStruct<T>, eventsOverride?: EventSet) {
         const events = prepareEvents(eventsOverride || this.events(), this);
         this.eventSet = events && events.length ? events : null;
+        this.needsHook = !!(
+            this.eventSet ||
+            this.onHook !== View.prototype.onHook ||
+            this.onUnhook !== View.prototype.onUnhook);
     }
 
     abstract dom(state: T): VTree;
@@ -86,6 +91,7 @@ export abstract class View<T> {
             const patches = diff(tree, newTree);
             patch(el as any, patches);
             tree = newTree;
+            this.onAfterPatch();
         };
 
         const queueRender = () => {
@@ -104,6 +110,14 @@ export abstract class View<T> {
         return this.render(this.previousTree);
     }
 
+    protected onAfterPatch(): void {
+    }
+
+    protected onHook(node: any): void {
+    }
+
+    protected onUnhook(node: any): void {
+    }
 
     private render(previous: { vnode: VTree }): VTree {
         const currentState = this.state();
@@ -112,10 +126,21 @@ export abstract class View<T> {
             return previous.vnode;
         }
 
-        const result = this.dom(currentState);
+        const result: any = this.dom(currentState);
 
-        if (this.eventSet) {
-            (result as any).properties['thunk-view-hook'] = this;
+        if (this.needsHook) {
+            let hooks = result.hooks;
+            if (!hooks) {
+                result.hooks = hooks = {};
+            }
+
+            // monkey patch ourself into VNode hooks
+            // virtual-dom expects hooks to already be present in properties passed to h/VNode#constructor
+            hooks.mehpif = this;
+            result.properties.mehpif = this;
+
+            // TODO try to live without this one
+            //result.descendantHooks = true;
         }
 
         // please don't make this necessary
@@ -128,12 +153,14 @@ export abstract class View<T> {
 
     private hook(node: any, propertyName: any, previousValue: any): void {
         addListeners(node, this.eventSet);
-        console.log(this, 'hook', node, propertyName, previousValue);
+        this.onHook(node);
+        //console.log(this, 'hook', node, propertyName, previousValue);
     }
 
     private unhook(node: any, propertyName: any, previousValue: any): void {
         // FIXME off stuff
-        console.log(this, 'unhook', node, propertyName, previousValue);
+        this.onUnhook(node);
+        //console.log(this, 'unhook', node, propertyName, previousValue);
     }
 
     public dispose() {

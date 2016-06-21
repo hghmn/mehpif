@@ -35,6 +35,9 @@ enum Filter {
     completed,
 }
 
+// dirty :(
+let afterPatch: Function[] = [];
+
 function forEach<T>(hash: IVarhash<T>, selector: (value: T, key: string) => void): void {
     const keys = Object.keys(hash);
     for (let i = 0; i < keys.length; i++) {
@@ -49,10 +52,10 @@ class Todo extends View<ITodo> {
             'click .destroy': () => this.set({ title: null }), // false-y will cause delete
 			'dblclick label': evt => {
                 this.set({ editing: true });
-                const input = $(evt.target).closest('li').find('.edit');
-
-                // FIXME very dirty
-                setTimeout(() => input.focus(), 50);
+                const input = $(evt.target).closest('li').find('.edit')[0];
+                if (input) {
+                    afterPatch.push(() => input.focus());
+                }
             },
 			'keypress .edit': 'updateOnEnter',
 			'keydown .edit': 'revertOnEscape',
@@ -104,6 +107,14 @@ class Todo extends View<ITodo> {
         if (e.which === ESCAPE_KEY) {
             this.set({ editing: false });
         }
+    }
+
+    onHook(node) {
+        console.log('hook', this.state(), node);
+    }
+
+    onUnhook(node) {
+        console.log('unhook', this.state(), node);
     }
 
     private copy(val: any): ITodo {
@@ -234,6 +245,15 @@ class App extends View<IState> {
             fragment === '#/completed' ? Filter.completed :
             fragment === '#/active' ? Filter.active :
             Filter.all);
+    }
+
+    onAfterPatch() {
+        if (!afterPatch.length) {
+            return;
+        }
+        const after = afterPatch;
+        afterPatch = [];
+        after.forEach(fn => fn());
     }
 }
 
