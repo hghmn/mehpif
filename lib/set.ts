@@ -21,7 +21,7 @@ export function set<T>(state: { set: (value: T) => void, (): T }, options?: ISet
 
     return function(evt: any) {
         const node = evt.currentTarget || evt.target;
-        const value = val ? val(node) : typeof node.checked === 'boolean' ? node.checked : $(node).val();
+        const value = val ? val(node) : (node.hasOwnProperty('checked') && typeof node.checked === 'boolean') ? node.checked : $(node).val();
         const parsed = prepare ? prepare(value) : value;
         if (prevent && prevent(parsed)) {
             evt.preventDefault();
